@@ -1,0 +1,4 @@
+#!/usr/bin/env ruby
+
+require 'pxg'
+puts Pxg.hi(ARGV[0])
