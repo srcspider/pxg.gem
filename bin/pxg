@@ -15,7 +15,8 @@ puts
 puts <<eos
  Commands
  ------------------------------------------------------------------------------
-   pxg compile <dir>  - reads pxg.json from directory and resolves it
+   pxg version          - current interface version
+   pxg compile [<dir>]  - reads pxg.json from directory and resolves it
 eos
 
 end#if

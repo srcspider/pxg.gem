@@ -170,6 +170,10 @@ class Pxg
 		puts "  fin"
 	end#def
 
+	def version(args)
+		puts "  #{Pxg::VERSION}"
+	end#def
+
 	def failed_version_check(interface)
 		puts "  Err: Incompatible versions: pxg.json @ #{interface} but pxg.gem @ #{Pxg::VERSION}"
 	end#def
