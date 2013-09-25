@@ -1,4 +1,21 @@
 #!/usr/bin/env ruby
+# encoding: utf-8
 
 require 'pxg'
-puts Pxg.hi(ARGV[0])
+
+if ARGV.length > 0
+	pxg = Pxg.new;
+	command = ARGV.shift
+	if pxg.respond_to? command
+		pxg.send command, ARGV
+	end#if
+else # ARGV.length == 0
+
+puts
+puts <<eos
+ Commands
+ ------------------------------------------------------------------------------
+   pxg compile <dir>  - reads pxg.json from directory and resolves it
+eos
+
+end#if
