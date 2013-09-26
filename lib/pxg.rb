@@ -140,25 +140,21 @@ class Pxg
 		end
 
 		conf = JSON.parse(open(jsonconfigfile).read)
-
-		# interface was introduced after 1.0.0
-		if conf.has_key? 'interface'
-			conf['interface'] = "1.0.0"
-		end#if
+		conf_interface = '1.0.0'
 
 		# ensure pxg.json interface isn't newer
 		pxgi = Pxg::VERSION.split '.'
-		jsoni = conf['interface'].split '.'
+		jsoni = conf_interface.split '.'
 
 		if jsoni[0] != pxgi[0]
-			self.failed_version_check conf['interface']
+			self.failed_version_check conf_interface
 		else # major versions are equal
 			if jsoni[1] > pxgi[1]
 				# ie. json requires extra features
-				self.failed_version_check conf['interface']
+				self.failed_version_check conf_interface
 			elsif jsoni[1] == pxgi[1] && jsoni[2] > pxgi[2]
 				# ie. potential problems with bugfix'es
-				self.failed_version_check conf['interface']
+				self.failed_version_check conf_interface
 			end#if
 		end#if
 

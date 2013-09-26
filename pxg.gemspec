@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
 
 	s.name        = 'pxg'
-	s.version     = '1.1.0'
+	s.version     = '1.1.1'
 	s.date        = '2013-08-09'
 	s.summary     = "Project managing helpers"
 	s.description = "Pixelgrade Utilities"
