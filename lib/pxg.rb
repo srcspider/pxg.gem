@@ -10,6 +10,68 @@ class Pxg
 
 	VERSION = '1.1.0'
 
+	def reimage(argv)
+		xml = argv[0]
+		new_images = argv[1]
+		text = File.read new_images
+		text.strip!
+		image_urls = text.split "\n"
+		# read xml
+		xml_data = File.read xml
+		# eg image: http://pixelgrade.com/demos/bucket/wp-content/uploads/2013/10/kelly-brooks.jpg
+		# locate all images
+		rimages = xml_data.scan /(http(s){0,1}:\/\/[^"<>]*\/[0-9]{4}\/[0-9]{2}\/[^"<>]+\.(jpg|jpeg|png|tiff|gif|webp))/
+		targets = []
+		rimages.each do |arr|
+			match_data = arr[0].match /(http(s){0,1}:\/\/[^"<>]*\/)([0-9]{4}\/[0-9]{2}\/[^"<>]+\.(jpg|jpeg|png|tiff|gif|webp))/
+			targets.push([match_data[0], match_data[1], arr[0].gsub(match_data[1], '')])
+		end#each
+
+		targets.each do |img|
+			random_image = image_urls.sample.split ' '
+			xml_data.gsub! img[0], random_image[1]
+			xml_data.gsub! img[2], img[2][0..7] + random_image[0]
+		end#each
+
+		# split xml in parts
+		parts1 = xml_data.split '</generator>';
+		opening = parts1[0] + '</generator>'
+		parts2 = parts1[1].split '</channel>'
+		ending = '</channel>' + parts2[1]
+		items = parts2[0];
+
+		# split items into item array
+		clean_items = ''
+		association = {}
+		corrections = {}
+		ids = [];
+
+		guid_regex = /<guid isPermaLink=\"false\">(http(s){0,1}:\/\/[^"<>]+\.(jpg|jpeg|png|tiff|gif|webp))<\/guid>/m
+		id_regex = /<wp:post_id>([0-9]+)<\/wp:post_id>/m
+
+		items.split('</item>').each do |itemstr|
+			if itemstr =~ guid_regex
+				matches = itemstr.match guid_regex
+				idmatch = itemstr.match id_regex
+				if ! association.has_key? matches[0]
+					association[matches[0]] = idmatch[1]
+					itemstr = itemstr + '</item>'
+				else # already associated
+					corrections[idmatch[1]] = association[matches[0]]
+					itemstr = ''
+				end#if
+			else # not image attachment
+				corrections.each do |oldid, newid|
+					itemstr.sub "<wp:meta_value><![CDATA[#{oldid}]]></wp:meta_value>", "<wp:meta_value><![CDATA[#{newid}]]></wp:meta_value>"
+				end#each
+				itemstr = itemstr + '</item>'
+			end#if
+			clean_items = clean_items + itemstr;
+		end#each
+
+		puts opening + clean_items + ending
+	end#def
+
 	def find_and_replace(path, search, replace)
 		clean_path = path.sub(/(\/)+$/, '') + '/'
 		Dir.glob "#{clean_path}**/*.php" do |file|
@@ -43,7 +105,7 @@ class Pxg
 		srcpath = File.expand_path(rawsrcpath) + '/'
 		localpath = File.expand_path(rawlocalpath) + '/'
 		themepath = File.expand_path(rawthemepath) + '/'
-		Dir.glob "#{srcpath}**/*" do |file|
+		Dir.glob("#{srcpath}**/*", File::FNM_DOTMATCH) do |file|
 			next if file == '.' or file == '..'
 			filepath = File.expand_path(file)
 			filesubpath = filepath.sub srcpath, ''

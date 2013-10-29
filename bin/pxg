@@ -5,9 +5,12 @@ require 'pxg'
 
 if ARGV.length > 0
 	pxg = Pxg.new;
-	command = ARGV.shift
+	actual_command = ARGV.shift
+	command = actual_command.gsub ':', '_'
 	if pxg.respond_to? command
 		pxg.send command, ARGV
+	else # ! nyx.respond_to? command
+		puts " err: unknown command #{actual_command}"
 	end#if
 else # ARGV.length == 0
 
@@ -15,8 +18,10 @@ puts
 puts <<eos
  Commands
  ------------------------------------------------------------------------------
-   pxg version          - current interface version
-   pxg compile [<dir>]  - reads pxg.json from directory and resolves it
+   pxg version                        - current interface version
+   pxg compile [<dir>]                - reads pxg.json from directory and resolves it
+   pxg reimage [<xml>] [new-urls.txt] - reads urls from new-urls.txt replaces all attachment
+                                        images with urls in new urls
 eos
 
 end#if
