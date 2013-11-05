@@ -8,7 +8,7 @@ require 'json'
 
 class Pxg
 
-	VERSION = '1.1.0'
+	VERSION = '1.1.4'
 
 	def reimage(argv)
 		xml = argv[0]
@@ -62,7 +62,9 @@ class Pxg
 				end#if
 			else # not image attachment
 				corrections.each do |oldid, newid|
-					itemstr.sub "<wp:meta_value><![CDATA[#{oldid}]]></wp:meta_value>", "<wp:meta_value><![CDATA[#{newid}]]></wp:meta_value>"
+					regex_str = "<wp:meta_key>_thumbnail_id<\/wp:meta_key>\\s*<wp:meta_value><\\!\\[CDATA\\[#{oldid}\\]\\]></wp:meta_value>"
+					search_regex = Regexp.new regex_str
+					itemstr = itemstr.sub search_regex, "<wp:meta_key>_thumbnail_id</wp:meta_key>\n\t\t\t<wp:meta_value><![CDATA[#{newid}]]></wp:meta_value>"
 				end#each
 				itemstr = itemstr + '</item>'
 			end#if
